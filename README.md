@@ -1,6 +1,8 @@
 # WH40K Datasheet Lookup
 
-Vite + React app: upload a photo of a WH40K miniature → Gemini Vision identifies the unit → BattleScribe XML catalogue is fetched and parsed → matched unit data displayed as JSON.
+Vite + React app: upload a photo of a WH40K miniature → Gemini Vision identifies the unit → BattleScribe XML catalogue is fetched and parsed → matched unit data displayed as a styled **Auspex Screen datasheet card**.
+
+The datasheet card renders in a phosphor-green CRT terminal aesthetic with the full 10th edition stat block, weapons table, abilities, and keyword tags.
 
 ## Requirements
 
@@ -23,7 +25,7 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 3. Click **Identify Miniature**
 4. The app sends the image to `gemini-2.0-flash`, which returns the unit name and faction
 5. The matching BattleScribe `.cat` file is fetched from [BSData/wh40k-10e](https://github.com/BSData/wh40k-10e) on GitHub
-6. The XML is parsed and the closest unit entry is displayed as raw JSON
+6. The XML is parsed and the closest unit entry is displayed as a styled **DatasheetCard** (phosphor-green Auspex terminal UI)
 
 ## Project structure
 

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import ApiKeyInput from './components/ApiKeyInput'
 import ImageInput from './components/ImageInput'
-import RawUnitDisplay from './components/RawUnitDisplay'
+import DatasheetCard from './components/DatasheetCard'
+import RawUnitDisplay from './components/RawUnitDisplay' // kept for debug
 import { useGemini } from './hooks/useGemini'
 import { useBattlescribe } from './hooks/useBattlescribe'
 
@@ -107,7 +108,7 @@ export default function App() {
           </div>
         )}
 
-        <RawUnitDisplay
+        <DatasheetCard
           geminiResult={geminiResult}
           bsResult={bsResult}
           bsStatus={bsMatchStatus}

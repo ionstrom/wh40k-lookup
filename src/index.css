@@ -1,3 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&family=UnifrakturMaguntia&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ── Auspex Screen globals ── */
+:root {
+  --ph-bright:  #00ff41;
+  --ph-mid:     #00cc33;
+  --ph-dim:     #007a1f;
+  --ph-bg:      #0a0a0a;
+  --ph-border:  #00aa2a;
+}
+
+.font-mono-ph  { font-family: 'Share Tech Mono', 'VT323', monospace; }
+.font-vt323    { font-family: 'VT323', monospace; }
+.font-gothic   { font-family: 'UnifrakturMaguntia', serif; }
+
+/* CRT scanlines */
+.scanlines {
+  position: relative;
+}
+.scanlines::after {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.18) 2px,
+    rgba(0, 0, 0, 0.18) 4px
+  );
+  z-index: 10;
+}
+
+/* Phosphor glow helpers */
+.ph-glow-bright {
+  text-shadow: 0 0 6px var(--ph-bright), 0 0 12px var(--ph-mid);
+}
+.ph-glow-mid {
+  text-shadow: 0 0 4px var(--ph-mid);
+}
+.ph-glow-box {
+  box-shadow: 0 0 8px var(--ph-dim), inset 0 0 8px rgba(0,255,65,0.04);
+}
+.ph-glow-box-strong {
+  box-shadow: 0 0 16px var(--ph-dim), 0 0 4px var(--ph-border), inset 0 0 12px rgba(0,255,65,0.06);
+}
+
+/* Mechanical corner detail via pseudo-elements */
+.auspex-border {
+  position: relative;
+  border: 2px solid var(--ph-border);
+}
+.auspex-border::before,
+.auspex-border::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--ph-bright);
+  border-style: solid;
+}
+.auspex-border::before {
+  top: -3px; left: -3px;
+  border-width: 3px 0 0 3px;
+}
+.auspex-border::after {
+  bottom: -3px; right: -3px;
+  border-width: 0 3px 3px 0;
+}
+
+/* Inner corner detail (bottom-left / top-right) using extra wrapper */
+.auspex-border-inner {
+  position: relative;
+}
+.auspex-border-inner::before,
+.auspex-border-inner::after {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--ph-bright);
+  border-style: solid;
+}
+.auspex-border-inner::before {
+  bottom: -3px; left: -3px;
+  border-width: 0 0 3px 3px;
+}
+.auspex-border-inner::after {
+  top: -3px; right: -3px;
+  border-width: 3px 3px 0 0;
+}
+
+/* Scrollbar theming inside the card */
+.auspex-scroll::-webkit-scrollbar        { width: 6px; height: 6px; }
+.auspex-scroll::-webkit-scrollbar-track  { background: #0a0a0a; }
+.auspex-scroll::-webkit-scrollbar-thumb  { background: var(--ph-dim); }
