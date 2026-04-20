@@ -18,10 +18,11 @@ const WEAPON_COLS = [
 
 function findStatValue(rawStats, aliases) {
   const lower = Object.fromEntries(
-    Object.entries(rawStats || {}).map(([k, v]) => [k.toLowerCase().trim(), v])
+    Object.entries(rawStats || {}).map(([k, v]) => [k.toLowerCase().trim(), String(v ?? '').trim()])
   )
   for (const alias of aliases) {
-    if (lower[alias] !== undefined) return lower[alias] || '—'
+    const val = lower[alias]
+    if (val !== undefined) return val === '' ? '—' : val
   }
   return '—'
 }
@@ -53,20 +54,33 @@ function normalizeWeapons(weapons) {
 
     const normalized = { name: wpn.name || '—', ...cols, keywords }
 
-    if (isMelee) melee.push(normalized)
-    else ranged.push(normalized)
+    // Unclassified weapons: treat as ranged if Range stat is present and not "Melee", else melee
+    if (isMelee) {
+      melee.push(normalized)
+    } else if (isRanged) {
+      ranged.push(normalized)
+    } else {
+      const rangeVal = (cols['BS'] || '').toLowerCase()
+      if (rangeVal === 'melee' || rangeVal === '') melee.push(normalized)
+      else ranged.push(normalized)
+    }
   }
 
   return { ranged, melee }
 }
 
 function normalizeAbilities(abilities) {
-  return (abilities || []).map(ab => {
-    // BSData abilities often pack description as "Description: <text>"
-    let desc = ab.description || '—'
-    desc = desc.replace(/^Description:\s*/i, '')
-    return { name: (ab.name || '—').toUpperCase(), description: desc }
-  })
+  return (abilities || [])
+    .filter(ab => ab && (ab.name || ab.description))
+    .map(ab => {
+      let desc = String(ab.description || '—').trim()
+      // BSData packs all chars as "Label: value | Label: value" — strip leading "Description: "
+      desc = desc.replace(/^Description:\s*/i, '')
+      // Collapse pipe-separated segments into readable sentences
+      desc = desc.replace(/\s*\|\s*/g, ' • ')
+      if (!desc || desc === '—' || desc.toLowerCase() === 'n/a') desc = '—'
+      return { name: String(ab.name || '—').toUpperCase().trim(), description: desc }
+    })
 }
 
 export function parseUnit(raw) {
