@@ -8,33 +8,53 @@ export default function ApiKeyInput({
   modelsLoading,
 }) {
   return (
-    <div className="mb-6 bg-gray-800 rounded-lg p-4 border border-gray-700">
-      <label className="block text-yellow-400 text-xs uppercase tracking-widest mb-2">
-        Gemini API Key
+    <div className="mb-4 p-3 font-mono-ph"
+         style={{ border: '1px solid var(--ph-border)', background: 'rgba(0,122,31,0.06)' }}>
+
+      <div className="text-xs tracking-widest mb-2"
+           style={{ color: 'var(--ph-dim)', borderBottom: '1px solid var(--ph-dim)', paddingBottom: '4px' }}>
+        // COGITATOR ACCESS CREDENTIALS
+      </div>
+
+      <label className="block text-xs tracking-widest mb-1"
+             style={{ color: 'var(--ph-dim)' }}>
+        GEMINI API KEY
       </label>
       <input
         type="password"
         value={apiKey}
         onChange={e => onChange(e.target.value)}
-        placeholder="Paste your Gemini API key here"
-        className="w-full bg-gray-900 text-gray-100 border border-gray-600 rounded px-3 py-2 text-sm focus:outline-none focus:border-yellow-400"
+        placeholder="PASTE KEY HERE..."
+        className="w-full text-xs px-2 py-2 font-mono-ph focus:outline-none"
+        style={{
+          background: 'rgba(0,0,0,0.6)',
+          border: '1px solid var(--ph-border)',
+          color: 'var(--ph-bright)',
+          caretColor: 'var(--ph-bright)',
+        }}
       />
-      <p className="text-gray-500 text-xs mt-1">
-        Stored in localStorage — only sent to the Gemini API.
-      </p>
+      <div className="text-xs mt-1" style={{ color: 'var(--ph-dim)' }}>
+        // STORED IN LOCALSTORAGE — TRANSMITTED ONLY TO GEMINI API
+      </div>
 
       <div className="mt-3 flex items-center gap-2">
-        <label className="text-yellow-400 text-xs uppercase tracking-widest whitespace-nowrap">
-          Model
+        <label className="text-xs tracking-widest whitespace-nowrap"
+               style={{ color: 'var(--ph-dim)' }}>
+          MODEL
         </label>
         <select
           value={selectedModel}
           onChange={e => onModelChange(e.target.value)}
           disabled={models.length === 0}
-          className="flex-1 min-w-0 bg-gray-900 text-gray-100 border border-gray-600 rounded px-2 py-1 text-xs focus:outline-none focus:border-yellow-400 disabled:text-gray-500"
+          className="flex-1 min-w-0 text-xs px-2 py-1 font-mono-ph focus:outline-none"
+          style={{
+            background: 'rgba(0,0,0,0.6)',
+            border: '1px solid var(--ph-border)',
+            color: models.length === 0 ? 'var(--ph-dim)' : 'var(--ph-mid)',
+          }}
         >
           {models.length === 0 ? (
-            <option value="">— paste key then click Load —</option>
+            <option value="">— PASTE KEY THEN LOAD —</option>
           ) : (
             models.map(m => (
               <option key={m.id} value={m.id}>{m.id}</option>
@@ -44,17 +64,28 @@ export default function ApiKeyInput({
         <button
           onClick={() => onLoadModels(apiKey)}
           disabled={!apiKey.trim() || modelsLoading}
-          className="px-3 py-1 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-yellow-400 text-xs rounded border border-gray-600 whitespace-nowrap transition-colors"
+          className="px-3 py-1 text-xs font-mono-ph tracking-wider transition-all whitespace-nowrap"
+          style={apiKey.trim() && !modelsLoading ? {
+            border: '1px solid var(--ph-mid)',
+            color: 'var(--ph-mid)',
+            background: 'rgba(0,122,31,0.1)',
+          } : {
+            border: '1px solid var(--ph-dim)',
+            color: 'var(--ph-dim)',
+            background: 'transparent',
+            cursor: 'not-allowed',
+          }}
         >
-          {modelsLoading ? 'Loading…' : models.length > 0 ? 'Reload' : 'Load Models'}
+          {modelsLoading ? '...' : models.length > 0 ? 'RELOAD' : 'LOAD'}
         </button>
       </div>
 
       {selectedModel && (
-        <p className="text-gray-500 text-xs mt-1">
-          Using: <span className="text-yellow-300">{selectedModel}</span>
-          {' '}({models.length} models available)
-        </p>
+        <div className="text-xs mt-2" style={{ color: 'var(--ph-dim)' }}>
+          // ACTIVE:{' '}
+          <span style={{ color: 'var(--ph-mid)' }}>{selectedModel}</span>
+          {' '}// {models.length} MODELS AVAILABLE
+        </div>
       )}
     </div>
   )

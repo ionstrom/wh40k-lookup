@@ -17,11 +17,16 @@ export default function ImageInput({ onFileSelect }) {
       onDragOver={e => { e.preventDefault(); setDragging(true) }}
       onDragLeave={() => setDragging(false)}
       onDrop={e => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]) }}
-      className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer mb-6 transition-all ${
-        dragging
-          ? 'border-yellow-400 bg-yellow-400/8'
-          : 'border-gray-600 hover:border-yellow-400 hover:bg-yellow-400/5'
-      }`}
+      className="p-6 text-center cursor-pointer mb-4 font-mono-ph transition-all"
+      style={{
+        border: dragging
+          ? '2px dashed var(--ph-bright)'
+          : '2px dashed var(--ph-border)',
+        background: dragging
+          ? 'rgba(0,255,65,0.06)'
+          : 'rgba(0,122,31,0.04)',
+        boxShadow: dragging ? '0 0 12px var(--ph-dim)' : 'none',
+      }}
     >
       <input
         ref={fileInputRef}
@@ -32,16 +37,28 @@ export default function ImageInput({ onFileSelect }) {
         onChange={e => handleFile(e.target.files[0])}
       />
       {preview ? (
-        <img
-          src={preview}
-          alt="Selected miniature"
-          className="max-h-48 mx-auto rounded-lg border border-gray-600"
-        />
+        <div>
+          <img
+            src={preview}
+            alt="Selected miniature"
+            className="max-h-48 mx-auto"
+            style={{ border: '1px solid var(--ph-border)' }}
+          />
+          <div className="text-xs mt-2" style={{ color: 'var(--ph-dim)' }}>
+            // IMAGE LOADED — CLICK TO REPLACE
+          </div>
+        </div>
       ) : (
         <>
-          <div className="text-5xl mb-3">📸</div>
-          <p className="text-gray-300 font-semibold">Tap to upload or take a photo</p>
-          <p className="text-gray-500 text-sm mt-1">Supports JPG, PNG, WebP</p>
+          <div className="text-2xl mb-2 ph-glow-mid" style={{ color: 'var(--ph-mid)' }}>
+            [ + ]
+          </div>
+          <div className="text-xs tracking-widest mb-1" style={{ color: 'var(--ph-mid)' }}>
+            UPLOAD PICT-CAPTURE OR DRAG-AND-DROP
+          </div>
+          <div className="text-xs" style={{ color: 'var(--ph-dim)' }}>
+            // ACCEPTED FORMATS: JPG · PNG · WEBP
+          </div>
         </>
       )}
     </div>

@@ -28,9 +28,9 @@ export default function App() {
   }
 
   async function handleIdentify() {
-    if (!apiKey.trim()) { setError('Please enter your Gemini API key above.'); return }
-    if (!selectedModel) { setError('Please load models and select one above.'); return }
-    if (!selectedFile) { setError('Please select an image first.'); return }
+    if (!apiKey.trim()) { setError('// ERROR: NO API KEY SUPPLIED'); return }
+    if (!selectedModel) { setError('// ERROR: NO MODEL SELECTED — LOAD MODELS FIRST'); return }
+    if (!selectedFile) { setError('// ERROR: NO IMAGE LOADED'); return }
 
     setError('')
     setGeminiResult(null)
@@ -38,27 +38,27 @@ export default function App() {
     setBsMatchStatus('')
 
     try {
-      setStatusMsg('Sending image to Gemini...')
+      setStatusMsg('// TRANSMITTING IMAGE TO GEMINI COGITATOR...')
       const result = await identify(selectedFile, apiKey.trim())
       setGeminiResult(result)
 
       if (!result.unitName) {
-        setBsMatchStatus('Skipping BattleScribe lookup — unit name not parsed.')
+        setBsMatchStatus('// WARNING: UNIT NAME UNRESOLVED — SKIPPING DATABANK QUERY')
         setStatusMsg('')
         return
       }
 
-      setStatusMsg('Fetching BattleScribe catalogue...')
+      setStatusMsg('// QUERYING BATTLESCRIBE DATABANKS...')
       const match = await lookup(result.unitName, result.faction)
 
       if (match) {
-        setBsMatchStatus(`✅ Matched "${match.name}" in catalogue`)
+        setBsMatchStatus(`// MATCH CONFIRMED: "${match.name}"`)
         setBsResult(match)
       } else {
-        setBsMatchStatus(`⚠ No exact match found for "${result.unitName}"`)
+        setBsMatchStatus(`// WARNING: NO RECORD FOUND FOR "${result.unitName}"`)
       }
     } catch (err) {
-      setError(err.message || String(err))
+      setError(`// SYSTEM FAULT: ${err.message || String(err)}`)
     } finally {
       setStatusMsg('')
     }
@@ -67,13 +67,25 @@ export default function App() {
   const canIdentify = !!apiKey.trim() && !!selectedFile && !!selectedModel && !loading
 
   return (
-    <div className="min-h-screen bg-[#1a1a2e] text-gray-100 font-mono p-4">
+    <div className="min-h-screen scanlines font-mono-ph p-4"
+         style={{ background: 'var(--ph-bg)', color: 'var(--ph-mid)' }}>
       <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-yellow-400 tracking-widest uppercase mb-1">
-            ⚔ WH40K Datasheet Lookup
-          </h1>
-          <p className="text-gray-400 text-sm">Gemini Vision + BattleScribe XML</p>
+
+        {/* ── Header ── */}
+        <div className="text-center mb-8 pt-4">
+          <div className="font-mono-ph text-xs mb-2 tracking-widest"
+               style={{ color: 'var(--ph-dim)' }}>
+            // IMPERIAL AUSPEX TERMINAL v10.0 // UNIT IDENTIFICATION SYSTEM //
+          </div>
+          <div className="font-gothic ph-glow-bright"
+               style={{ color: 'var(--ph-bright)', fontSize: 'clamp(1.8rem, 6vw, 2.8rem)', lineHeight: 1 }}>
+            WH40K Datasheet Lookup
+          </div>
+          <div className="font-mono-ph text-xs mt-2 tracking-widest"
+               style={{ color: 'var(--ph-dim)' }}>
+            GEMINI VISION COGITATOR · BATTLESCRIBE DATABANK ACCESS
+          </div>
+          <div className="mt-3 mx-auto" style={{ height: '2px', background: 'var(--ph-border)', maxWidth: '400px' }} />
         </div>
 
         <ApiKeyInput
@@ -87,24 +99,41 @@ export default function App() {
         />
         <ImageInput onFileSelect={setSelectedFile} />
 
+        {/* ── Identify button ── */}
         <button
           onClick={handleIdentify}
           disabled={!canIdentify}
-          className="w-full py-3 bg-yellow-500 hover:bg-yellow-400 disabled:bg-gray-700 disabled:text-gray-500 text-black font-bold uppercase tracking-widest rounded-lg transition-colors text-sm"
+          className="w-full py-3 font-mono-ph text-sm uppercase tracking-widest transition-all"
+          style={canIdentify ? {
+            background: 'rgba(0,122,31,0.15)',
+            border: '2px solid var(--ph-bright)',
+            color: 'var(--ph-bright)',
+            textShadow: '0 0 8px var(--ph-bright)',
+            boxShadow: '0 0 12px var(--ph-dim)',
+          } : {
+            background: 'rgba(0,122,31,0.04)',
+            border: '2px solid var(--ph-dim)',
+            color: 'var(--ph-dim)',
+            cursor: 'not-allowed',
+          }}
         >
-          {loading ? 'Identifying…' : 'Identify Miniature'}
+          {loading ? '// SCANNING... //' : '[ INITIATE AUSPEX SCAN ]'}
         </button>
 
+        {/* ── Loading status ── */}
         {(statusMsg || bsStatus) && (
-          <div className="mt-4 text-center">
-            <div className="inline-block w-8 h-8 border-4 border-gray-600 border-t-yellow-400 rounded-full animate-spin mb-2" />
-            <p className="text-yellow-400 text-sm">{statusMsg || bsStatus}</p>
+          <div className="mt-4 font-mono-ph text-xs text-center py-2"
+               style={{ color: 'var(--ph-mid)', borderTop: '1px solid var(--ph-dim)', borderBottom: '1px solid var(--ph-dim)' }}>
+            <span className="inline-block mr-2 animate-pulse">▌</span>
+            {statusMsg || bsStatus}
           </div>
         )}
 
+        {/* ── Error ── */}
         {error && (
-          <div className="mt-4 bg-red-900/40 border border-red-600 rounded-lg p-4 text-red-300 text-sm">
-            Error: {error}
+          <div className="mt-4 p-3 font-mono-ph text-xs"
+               style={{ border: '1px solid #7a0000', background: 'rgba(122,0,0,0.15)', color: '#ff4444' }}>
+            {error}
           </div>
         )}
 
@@ -114,12 +143,16 @@ export default function App() {
           bsStatus={bsMatchStatus}
         />
 
-        <p className="text-center text-gray-600 text-xs mt-8">
-          BattleScribe data © BSData contributors —{' '}
-          <a href="https://github.com/BSData/wh40k-10e" className="underline hover:text-gray-400">
+        {/* ── Footer ── */}
+        <div className="text-center font-mono-ph text-xs mt-8 pb-4"
+             style={{ color: 'var(--ph-dim)', borderTop: '1px solid var(--ph-dim)', paddingTop: '1rem' }}>
+          BATTLESCRIBE DATA © BSDATA CONTRIBUTORS //&nbsp;
+          <a href="https://github.com/BSData/wh40k-10e"
+             style={{ color: 'var(--ph-mid)' }}
+             className="underline hover:ph-glow-mid">
             github.com/BSData/wh40k-10e
           </a>
-        </p>
+        </div>
       </div>
     </div>
   )
