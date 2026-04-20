@@ -16,7 +16,7 @@ export default function App() {
   const [error, setError] = useState('')
   const [statusMsg, setStatusMsg] = useState('')
 
-  const { identify, loading: geminiLoading } = useGemini()
+  const { identify, loading: geminiLoading, loadModels, models, selectedModel, setSelectedModel, modelsLoading } = useGemini()
   const { lookup, loading: bsLoading, status: bsStatus } = useBattlescribe()
 
   const loading = geminiLoading || bsLoading
@@ -28,6 +28,7 @@ export default function App() {
 
   async function handleIdentify() {
     if (!apiKey.trim()) { setError('Please enter your Gemini API key above.'); return }
+    if (!selectedModel) { setError('Please load models and select one above.'); return }
     if (!selectedFile) { setError('Please select an image first.'); return }
 
     setError('')
@@ -62,7 +63,7 @@ export default function App() {
     }
   }
 
-  const canIdentify = !!apiKey.trim() && !!selectedFile && !loading
+  const canIdentify = !!apiKey.trim() && !!selectedFile && !!selectedModel && !loading
 
   return (
     <div className="min-h-screen bg-[#1a1a2e] text-gray-100 font-mono p-4">
@@ -74,7 +75,15 @@ export default function App() {
           <p className="text-gray-400 text-sm">Gemini Vision + BattleScribe XML</p>
         </div>
 
-        <ApiKeyInput apiKey={apiKey} onChange={handleApiKeyChange} />
+        <ApiKeyInput
+          apiKey={apiKey}
+          onChange={handleApiKeyChange}
+          models={models}
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
+          onLoadModels={loadModels}
+          modelsLoading={modelsLoading}
+        />
         <ImageInput onFileSelect={setSelectedFile} />
 
         <button

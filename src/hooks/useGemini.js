@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-const GEMINI_MODEL = 'gemini-2.0-flash'
-
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -13,8 +11,44 @@ function fileToBase64(file) {
 
 export function useGemini() {
   const [loading, setLoading] = useState(false)
+  const [models, setModels] = useState([])
+  const [selectedModel, setSelectedModel] = useState('')
+  const [modelsLoading, setModelsLoading] = useState(false)
+
+  async function loadModels(apiKey) {
+    setModelsLoading(true)
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}&pageSize=100`
+      )
+      if (!res.ok) {
+        const e = await res.json().catch(() => ({}))
+        throw new Error(`${res.status}: ${e?.error?.message || res.statusText}`)
+      }
+      const data = await res.json()
+
+      const vision = (data.models || [])
+        .filter(m =>
+          (m.supportedGenerationMethods || []).includes('generateContent') &&
+          (m.name || '').includes('gemini')
+        )
+        .map(m => ({
+          id: m.name.replace('models/', ''),
+          displayName: m.displayName || m.name.replace('models/', ''),
+        }))
+
+      setModels(vision)
+      // Pre-select first flash model, or first model
+      const flash = vision.find(m => m.id.includes('flash'))
+      setSelectedModel((flash || vision[0])?.id || '')
+      return vision
+    } finally {
+      setModelsLoading(false)
+    }
+  }
 
   async function identify(file, apiKey) {
+    if (!selectedModel) throw new Error('No model selected — load models first.')
     setLoading(true)
     try {
       const base64 = await fileToBase64(file)
@@ -44,7 +78,7 @@ If you cannot identify a Warhammer 40K miniature, set unit_name to null.`
       }
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
       )
 
@@ -76,5 +110,5 @@ If you cannot identify a Warhammer 40K miniature, set unit_name to null.`
     }
   }
 
-  return { identify, loading }
+  return { identify, loading, loadModels, models, selectedModel, setSelectedModel, modelsLoading }
 }
